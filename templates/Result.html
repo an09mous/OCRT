@@ -1,0 +1,27 @@
+{%extends "base.html" %}
+
+{% block content %}
+
+
+
+
+
+<div id="disp" class="container">
+  <br>
+  <table  class="table table-bordered table-hover"> 
+    <thead class="thead-light">
+      <tr>
+        <th>Original word</th>
+        <th>Translation</th>
+      </tr>
+    </thead>
+    {% for x in words %}
+    <tr>
+      <td class="h3" style="margin-top: 2px; margin-bottom: 2px;">{{ x.origin}} </td>
+      <td class="h3" style="margin-top: 2px; margin-bottom: 2px;">{{ x.text}} </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <br>       
+</div>
+{% endblock %}

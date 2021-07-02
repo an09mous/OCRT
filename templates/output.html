@@ -1,0 +1,39 @@
+{%extends "base.html" %}
+
+{% block content %}
+
+<img src="data:image/png;base64, {{filestring}}" alt="alternate" height="100%" width="100%" />
+
+{% endblock %}
+
+
+{% block display %}
+
+<div id="disp">
+    <br>
+    <ol>
+        {% for x in words %}
+        <li class="h3" style="margin-top: 2px; margin-bottom: 2px;">{{ x }} </li>
+        {% endfor %}
+    </ol>  
+    <br> 
+    
+    <form action="/upload-image/result" method="POST" >
+      <label for="disp">Choose a Language:</label>
+      <select id="disp" name="Language" class="form-select">
+        <option value="Hindi">Hindi</option>
+        <option value="Japanese">Japanese</option>
+        <option value="French">French</option>
+        <option value="German">German</option>
+        <option value="Italian">Italian</option>
+        <option value="Korean">Korean</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Urdu">Urdu</option>
+        <option value="Irish">Irish</option>
+        <option value="Spanish">Spanish</option>
+      </select>
+      <input type="submit">
+    </form>
+</div> 
+
+{% endblock %}

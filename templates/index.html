@@ -1,0 +1,214 @@
+{%extends "base.html" %}
+
+{%block content%}
+
+<div class="accordion" id="accordionExample">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-outline-light btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Select Image
+        </button>
+      </h2>
+    </div>
+
+    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <div class="card-body">
+        <form action="/upload-image" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="file" class="form-control-file" name="image" id="image">
+          </div>
+          <button type="submit" class="btn btn-primary">Detect Text</button>
+        </form>
+        <form action="/upload-image-hw" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="file" class="form-control-file" name="image" id="image">
+          </div>
+          <button type="submit" class="btn btn-primary">Detect Handwriting</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h2 class="mb-0">
+        <button class="btn btn-outline-light btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Capture Image
+        </button>
+      </h2>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <div class="card-body">
+        <!-- Video -->
+        <div class="camera">
+          <video id="video" width="100%" poster="{{ url_for('static', filename='camera.png') }}"
+              height="100%" autoplay>
+          </video>
+        </div>
+        <br>
+        <div style="float: left;">
+          <a class="btn btn-primary" id="startbutton">
+              Capture
+          </a>
+        </div>
+
+        <div class="text-right">
+          <a class="btn btn-danger" 
+              onClick="stop()">
+              Stop Cam
+          </a>
+          <a class="btn btn-success"
+              onClick="start()">
+              Start Cam
+          </a>
+        </div>
+        <canvas id="canvas"></canvas>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var width = 320; // We will scale the photo width to this
+  var height = 0; // This will be computed based on the input stream
+
+  var streaming = false;
+  var stop = function () {
+      var stream = video.srcObject;
+      var tracks = stream.getTracks();
+      for (var i = 0; i < tracks.length; i++) {
+          var track = tracks[i];
+          track.stop();
+      }
+      video.srcObject = null;
+  }
+  var start = function () {
+      var video = document.getElementById('video'),
+          vendorUrl = window.URL || window.webkitURL;
+      var canvas = document.getElementById('canvas');
+      var photo = document.getElementById('photo');
+      var startbutton = document.getElementById('startbutton');
+      if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+              .then(function (stream) {
+                  video.srcObject = stream;
+              }).catch(function (error) {
+                  console.log("Something went wrong!");
+              });
+      }
+      video.addEventListener('canplay', function(ev) {
+        if (!streaming) {
+          height = video.videoHeight / (video.videoWidth / width);
+        
+          if (isNaN(height)) {
+            height = width / (4 / 3);
+          }
+          canvas.setAttribute('width', width);
+          canvas.setAttribute('height', height);
+          streaming = true;
+        }
+    }, false);
+    startbutton.addEventListener('click', function(ev) {
+        takepicture();
+        ev.preventDefault();
+    }, false);
+
+    clearphoto();
+  }
+
+  function clearphoto() {
+      var context = canvas.getContext('2d');
+      context.fillStyle = "#AAA";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      var data = canvas.toDataURL('image/png');
+      photo.setAttribute('src', data);
+  }
+
+  function takepicture() {
+      var context = canvas.getContext('2d');
+      if (width && height) {
+          canvas.width = width;
+          canvas.height = height;
+          context.drawImage(video, 0, 0, width, height);
+
+          var data = canvas.toDataURL('image/png');
+        
+          photo.setAttribute('src', data);
+          document.getElementById('hidden').style.display = "block";
+
+      } else {
+          clearphoto();
+      }
+  }
+
+</script>
+
+{% endblock %}
+
+{% block output %}
+
+<div id="hidden">
+  <div class="output">
+    <img style="width: 100%; height: 100%;" id="photo" alt="The screen capture will appear in this box.">
+  </div>
+  <br>
+  <!-- <form style="text-align: center;" action="/upload-image" method="POST" enctype="multipart/form-data"> -->
+    <!-- get image to upload from canvas -->
+    
+    <div style="text-align: center;">
+      <button id="upload-btn" class="btn btn-primary">Upload</button>
+    </div>
+
+  <!-- </form> -->
+  <br>
+</div>
+
+
+<script>
+  function dataURItoBlob(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+  }
+  
+  $(function() {
+    $('#upload-btn').click(function() {
+      var dataURL = document.getElementById('photo').src
+      var blob = dataURItoBlob(dataURL);
+      var file = new File( [blob], 'canvasImage.jpg', { type: 'image/jpeg' } );
+      var fd = new FormData();
+      console.log(file)
+      fd.append("image", file);
+        $.ajax({
+            type: 'POST',
+            url: '/upload-image',
+            data: fd,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success:function(response){ document.write(response); } // ye output template overwrite kr de rha h 
+        });
+    });
+});
+
+  
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  background-color: rgb(212, 219, 219);
+}
+
+#col1,
+#col2 {
+  margin: 5%;
+}
+
+img {
+  /* width: 100%;*/
+  height: auto;
+}
+
+#col1 {
+  background-color: rgb(51, 48, 48);
+}
+
+.card {
+  background-color: rgb(51, 48, 48);
+}
+
+h1,
+h4,
+.card-text,
+.card-body,
+.collapsed {
+  color: azure;
+  text-align: center;
+}
+
+canvas {
+  display: none;
+}
+
+#hidden {
+  display: none;
+}
+
+#disp {
+  
+  padding-left: 1em;
+  color: azure;
+  background-color: rgb(51, 48, 48);
+}
+
+table, th, td {
+  border: 1px solid rgb(245, 242, 242);
+  color: rgb(245, 242, 242);
+}
+.table-hover tbody tr:hover td {
+  background: rgb(144, 146, 146);
+}
+
+
+
+
+
+
+
+
